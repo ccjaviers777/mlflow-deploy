@@ -1,0 +1,10 @@
+artifact_location: e:\EAN\ESPECIALIZACION_MACHINE_LEARNING\SEMESTRE 3\MLOps\Codigos_trabajos\mlflow-deploy\mlruns/models/m-27325cbb835c4133b5ff36fa7160df16/artifacts
+creation_timestamp: 1760494079060
+experiment_id: '759130886073378413'
+last_updated_timestamp: 1760494088981
+model_id: m-27325cbb835c4133b5ff36fa7160df16
+model_type: null
+name: model
+source_run_id: 125a37c564a746249f240535fb0150be
+status: 3
+status_message: null

@@ -1,5 +1,7 @@
-# filepath: /home/manuelcastiblan/academic/mlflow-deploy/mlflow-deploy/Makefile
 train:
-	python train.py  
+	python train.py
+
 validate:
-	python validate.py 
+	python validate.py
+
+all: train validate

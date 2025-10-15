@@ -11,30 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Clonar el repositorio
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Configurar Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      # 3️⃣ Instalar dependencias
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4️⃣ Entrenar modelo con MLflow
       - name: Train model
         run: make train
 
-      # 5️⃣ Validar modelo entrenado
       - name: Validate model
         run: make validate
 
-      # 6️⃣ Mostrar resultado final
-      - name: Show success message
-        run: echo "✅ Pipeline completado exitosamente."
+      - name: Finish message
+        run: echo "✅ Pipeline ejecutado correctamente"

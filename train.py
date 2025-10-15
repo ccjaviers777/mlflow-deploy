@@ -44,8 +44,17 @@ try:
     ##jcc    name=experiment_name,
     ##jcc    artifact_location=artifact_location # ¡Forzar la ubicación aquí!
     ##jcc)
-    experiment_id = mlflow.create_experiment("Experiment_Local", artifact_location=str(mlruns_dir))
-    print(f"--- Debug: Creado Experimento '{experiment_name}' con ID: {experiment_id} ---")
+    experiment_name = "Experiment_Local"
+
+    # Verificar si el experimento ya existe
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment:
+        experiment_id = experiment.experiment_id
+        print(f"--- Debug: El experimento '{experiment_name}' ya existe. ID: {experiment_id} ---")
+    else:
+        experiment_id = mlflow.create_experiment(experiment_name, artifact_location=f"file:///{os.path.abspath('mlruns').replace(os.sep, '/')}")
+        print(f"--- Debug: Creado experimento '{experiment_name}' con ID: {experiment_id} ---")
+
 except mlflow.exceptions.MlflowException as e:
     if "RESOURCE_ALREADY_EXISTS" in str(e):
         print(f"--- Debug: Experimento '{experiment_name}' ya existe. Obteniendo ID. ---")

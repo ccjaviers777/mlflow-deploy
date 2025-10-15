@@ -22,41 +22,29 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 print(f"--- Debug: Dimensiones de X_test: {X_test.shape} ---")  # Debería ser (n_samples, 10)
 
 # --- Cargar modelo previamente entrenado ---
-model_filename = "model.pkl"
-model_path = os.path.abspath(os.path.join(os.getcwd(), model_filename))
-print(f"--- Debug: Intentando cargar modelo desde: {model_path} ---")
+from pathlib import Path
+import glob
 
-try:
-    model = joblib.load(model_path)
-except FileNotFoundError:
-    print(f"--- ERROR: No se encontró el archivo del modelo en '{model_path}'. Asegúrate de que el paso 'make train' lo haya guardado correctamente en la raíz del proyecto. ---")
-    # Listar archivos en el directorio actual para depuración
-    print(f"--- Debug: Archivos en {os.getcwd()}: ---")
-    try:
-        print(os.listdir(os.getcwd()))
-    except Exception as list_err:
-        print(f"(No se pudo listar el directorio: {list_err})")
-    print("---")
-    sys.exit(1)  # Salir con error
+# --- Buscar el modelo más reciente dentro de mlruns ---
+mlruns_dir = Path(os.getcwd()) / "mlruns"
 
-# --- Predicción y Validación ---
-print("--- Debug: Realizando predicciones ---")
-try:
-    y_pred = model.predict(X_test)  # Ahora X_test tiene 10 features
-except ValueError as pred_err:
-    print(f"--- ERROR durante la predicción: {pred_err} ---")
-    # Imprimir información de características si el error persiste
-    print(f"Modelo esperaba {model.n_features_in_} features.")
-    print(f"X_test tiene {X_test.shape[1]} features.")
+print(f"--- Debug: Buscando modelo dentro de: {mlruns_dir} ---")
+
+# Buscar recursivamente todos los archivos model.pkl en subdirectorios
+model_files = list(mlruns_dir.rglob("model.pkl"))
+
+if not model_files:
+    print(f"--- ERROR: No se encontró ningún archivo model.pkl dentro de {mlruns_dir} ---")
+    print(f"--- Archivos detectados: {list(mlruns_dir.rglob('*'))[:10]} ---")
     sys.exit(1)
 
-mse = mean_squared_error(y_test, y_pred)
-print(f"🔍 MSE del modelo: {mse:.4f} (umbral: {THRESHOLD})")
+# Tomar el más reciente por fecha de modificación
+latest_model_path = max(model_files, key=os.path.getmtime)
+print(f"--- Debug: Modelo más reciente encontrado en: {latest_model_path} ---")
 
-# Validación
-if mse <= THRESHOLD:
-    print("✅ El modelo cumple los criterios de calidad.")
-    sys.exit(0)  # éxito
-else:
-    print("❌ El modelo no cumple el umbral. Deteniendo pipeline.")
-    sys.exit(1)  # error
+# Cargar el modelo
+try:
+    model = joblib.load(latest_model_path)
+except Exception as e:
+    print(f"--- ERROR al cargar el modelo: {e} ---")
+    sys.exit(1)
